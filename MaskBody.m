@@ -1,6 +1,6 @@
 function F = MaskBody(FBSHead)
 FBSHead(:,1:10) = 0;
-%% Get X head pos
+% Get head position
 hb = smooth(sum(FBSHead(:,1:floor(end/2)),2));
 hr = smooth(sum(FBSHead(:,ceil(end/2):end),2));
 [~,lcb,~,pb] = findpeaks(-hb);
@@ -13,7 +13,7 @@ if(isempty(lcb))
     lcb = 0;
     pb = 0;
 end
-
+% Get head initiation
 [~,lcr,~,pr] = findpeaks(-hr);
 pr(lcr>30|lcr<10) = [];
 lcr(lcr>30|lcr<10) = [];
@@ -32,9 +32,9 @@ else
     yhead = floor(size(FBSHead,2)/2)+3;
 end
 mask = zeros(size(FBSHead));
-
-for x = 1 : size(FBSHead,2);
-    for y = 1 : size(FBSHead,1);
+% mask body using a 4th power polynomial
+for x = 1 : size(FBSHead,2)
+    for y = 1 : size(FBSHead,1)
         if y > -0.0000075 * (x-yhead)^4 + xhead %%% 0.0075
             mask(y,x) = 1;
         end
@@ -65,9 +65,5 @@ auxR(auxR<valR) = 0;
 aux(:,floor(w/2):w) = auxR;
 FBSHead(1:(xhead+37),:) = aux;
 F = immultiply(logical(mask),FBSHead);
-
-
-
-
 
 end

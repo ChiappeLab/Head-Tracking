@@ -1,5 +1,5 @@
 function [SegHead, FBSHead] = SegmentHead(alignedImageBS)
-%% HEAD
+% define a box that will contain the full head
 s = size(alignedImageBS);
 BoxSizeX = 40;
 BoxSizeY = 50;
@@ -8,14 +8,16 @@ HeadOffsetX = 80;
 HeadBoxX = HeadOffsetX + (s(1)/2-BoxSizeX:s(1)/2+BoxSizeX);
 HeadBoxY = HeadOffsetY + (s(2)/2-BoxSizeY:s(2)/2+BoxSizeY);
 
+% crop the frame using the headbox and adjust the contrast
 FBSHead = alignedImageBS(HeadBoxX,HeadBoxY);
-
 xb = mean(mean(FBSHead(floor(end/2)-10:floor(end/2)+10,floor(end/2)-10:floor(end/2)+10)));
 m = (0.15-0.18)/(43.6-49);
 b = (43.6*0.18-49*0.15)/(43.6-49);
 yb = xb*m+b+0.1;
 FBSHead = imadjust(FBSHead,[0.01 max(0.05,yb)],[],1.5);
 
+% iteratively fill, dilate and erode image until it fills an area
+% approximately the size of the fly's head
 FEdHead = MaskBody(FBSHead);
 FEdHead = edge(FEdHead,'canny',0.1 ,1+sqrt(3));
 FEdHead = imfill(FEdHead,'holes');
@@ -29,6 +31,7 @@ while(sum(sum(FEdHead)) < 2000 && it  < 10)
     FEdHead = imerode(FEdHead,se);
     it = it + 1;
 end
+% Select the largest connected componnent and mask out all the others
 CC = bwconncomp(FEdHead,4);
 if length(CC.PixelIdxList) > 1
     lengths = zeros(1,length(CC.PixelIdxList));
@@ -49,5 +52,4 @@ else
     mask = FEdHead;
 end
 SegHead = immultiply(mask,FBSHead);
-
 end
