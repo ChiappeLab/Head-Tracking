@@ -1,3 +1,4 @@
+%% make a mask top of the thorax
 function F = MaskBody(FBSHead)
 FBSHead(:,1:10) = 0;
 % Get head position

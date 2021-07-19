@@ -1,3 +1,4 @@
+%% Function to adjust the intensity of the background image based on the original frame average intensity
 function [bckImg] = AdjustBackground(bckImg,FRawSmooth)
 divv = 8;
 % calculate the subsampled average intensity of frame and background

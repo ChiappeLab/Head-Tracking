@@ -1,3 +1,4 @@
+%% match the template area to the area of the isolated head
 function [Itemp] = ResizeTemplate(temp, img)
 % find the area of the head
 areaTemp = sum(sum(temp));

@@ -1,15 +1,19 @@
-%% Gui Tracking Test New
+%% Gui to test the head tracking parameters
 function GuiTestTracking()
-v = VideoReader('E:\P15 hsFLP KIR\Light\Fly 008\2_5.avi');
-f = figure('Visible', 'off', 'Position', [360, 300, 500, 320]);
-bckImg = imread('C:\Users\tomas\Dropbox (Sensorimotor)\ChiappeLabNew\DATA\TOMÁS\Free Walking VR\Software\Code Align 2017\Background_2_2019.tif');%BackgroundDarkApril2018.tif');%[pwd '\BckgDecember2017.tif']);
-% bckImg = uint8(255*ones(v.Width, v.Height));
+% add here the path to the video
+v = VideoReader(' ');
+% add here the path to the background image
+bckImg = imread(' ');
+% add here the path to the head template
 tempPath = [pwd '\TempHead.tif'];
+
+
+% define GUI parameters
+f = figure('Visible', 'off', 'Position', [360, 300, 500, 320]);
 bckImg = imgaussfilt(squeeze(bckImg(:,:,1)),16);
 f.Units = 'normalized';
 frameNo = 1;
 v.CurrentTime = frameNo/v.FrameRate;
-
 hplus = uicontrol('Style', 'pushbutton', 'String', '+', 'Position', [120, 290, 20, 20], ...
     'Callback', {@plusbutton_Callback});
 hminus = uicontrol('Style', 'pushbutton', 'String', '-', 'Position', [150, 290, 20, 20],...
@@ -21,7 +25,6 @@ slider = uicontrol(f,'Style','slider', 'Min',0,'Max',v.FrameRate*v.Duration,'Val
 hSave = uicontrol('Style', 'pushbutton', 'String', 'Save', 'Position', [420, 120, 20, 10],...
     'Callback', {@save_Callback});
 hSave.Units = 'normalized';
-
 p21 = axes('Units', 'pixels', 'Position', [50, 40, 140, 75]);
 p22 = axes('Units', 'pixels', 'Position', [50, 120, 140, 75]);
 p11 = axes('Units', 'pixels', 'Position', [50, 200, 140, 75]);
@@ -67,18 +70,22 @@ f.Name = 'NavigateVideo';
 movegui(f, 'center')
 f.Visible = 'on';
 colormap gray
+
+    % move to next frame
     function plusbutton_Callback(source, eventdata)
         if frameNo <= v.Duration*v.FrameRate
             frameNo = frameNo + 3;
             updateAxes(frameNo);
         end
     end
+    % move to previous frame
     function minusbutton_Callback(source, eventdata)
         if frameNo >= 2
             frameNo = frameNo - 3;
             updateAxes(frameNo);
         end
     end
+    % funtion to write down a frame number
     function txtbx(hObject, eventdata, handles)
         input = str2double(get(hObject,'String'));
         if isnan(input)
@@ -98,20 +105,22 @@ colormap gray
     function save_Callback(source, eventdata)
         imwrite(currTemplateHead,tempPath);
     end
+    % update and track the head in the new frame
     function updateAxes(fN)
-%         fN = 1675;
+        % load frame
         txtbox.String = num2str(fN);
         v.CurrentTime = fN/v.FrameRate;
         frame = readFrame(v);
         FRaw = frame(:,:,1);
-        %% BODY
+        % track body position and rotation
         FRawSmooth = imgaussfilt(FRaw,16);
         [bckImg] = AdjustBackground(bckImg,FRawSmooth);
         [alignedImageBS, ~,~,~,img] = TrackBody(FRaw,FRawSmooth,bckImg);
-        %% HEAD
+        % segment head 
         [SegHead1, FBSHead1] = SegmentHead(alignedImageBS);
         [SegHead2, FBSHead2] = SegmentHead(imrotate(alignedImageBS,180));
         
+        % Plot multiple steps
         axes(p11)
         cla
         imagesc(FRaw)
@@ -124,7 +133,7 @@ colormap gray
         imagesc(img)
         set(gca,'Ydir','Normal')
         axis off
-
+        
         axes(p22)
         cla
         imagesc(alignedImageBS)
@@ -136,7 +145,7 @@ colormap gray
         
         if exist(tempPath, 'file') ~= 0
             temp = imread(tempPath);
-            
+            % track head position and rotation
             [Itemp] = ResizeTemplate(temp, SegHead1);
             [~, ~, ~, thetaTemp, ~] = AlignHeadImage(Itemp, Itemp, 0, Itemp);
             [alignedImage1, X1, Y1, theta1, errors1] = AlignHeadImage(SegHead1, Itemp, 0, SegHead1);
@@ -158,6 +167,7 @@ colormap gray
             set(gca,'Ydir','Normal')
             axis off
             
+            % rotate image 180 and track again the position and orientation
             [Itemp] = ResizeTemplate(temp, SegHead2);
             [~, ~, ~, thetaTemp, ~] = AlignHeadImage(Itemp, Itemp, 0, Itemp);
             [alignedImage2, X2, Y2, theta2, errors2] = AlignHeadImage(SegHead2, Itemp, 0, SegHead2);
@@ -180,11 +190,6 @@ colormap gray
             set(gca,'Ydir','Normal')
             axis off
             
-            
-%             imwrite(alignedImage2, 'TempHeadNew.tif')
-            
         end
-
     end
-
 end

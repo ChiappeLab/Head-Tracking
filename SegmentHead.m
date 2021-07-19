@@ -1,3 +1,4 @@
+%% crop a rectangle around the fly's head
 function [SegHead, FBSHead] = SegmentHead(alignedImageBS)
 % define a box that will contain the full head
 s = size(alignedImageBS);

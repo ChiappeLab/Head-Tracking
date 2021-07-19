@@ -1,3 +1,4 @@
+%% transform frame to find body position and align its orientation
 function [alignedImageBS, alignedImageBS2, P1, P2, mig2] = TrackBody(FRaw,FRawSmooth,bckImg)
 % perform edge detection on the background subtracted frame
 s = size(FRaw);

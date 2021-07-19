@@ -1,3 +1,4 @@
+%% function to align the head image to the template head image
 function [alignedImage, X2, Y2, theta, errors] = AlignHeadImage(frame, temp, prevAngle, frameO, th0)
 if nargin < 6
     th0 = 0;
@@ -6,7 +7,7 @@ spacing = 1;
 fractionalPixelAccuracy = 1;
 N = 180/spacing;
 errors = zeros(3,1);
-% refister the 2D fft of the frame into the template
+% register the 2D fft of the frame into the template
 s = size(temp);
 if isempty(find(isnan(frame), 1)) || isempty(find(isinf(frame), 1))
     F1 = fft2(temp);
@@ -18,7 +19,7 @@ else
     X = 0;
     Y = 0;
 end
-% transfor the frame using the registration shifts
+% transform the frame using the registration shifts
 T = affine2d([1 0 0 ;0 1 0; X Y 1]);
 frame = imwarp(frame, T,'OutputView', imref2d(s));
 frameO = imwarp(frameO, T,'OutputView', imref2d(s));

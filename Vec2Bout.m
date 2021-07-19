@@ -1,9 +1,11 @@
+%% function to segment a vector into bouts with a minimum length
 function [Bouts, actState] = Vec2Bout(actState, t1, t0, exp)
 if nargin < 4
     exp = 0;
 end
 a = 1;
 thisBout = [];
+% clear segments smaller than a set threshold
 for i = 1 : length(actState) - 1
     if actState(i) == 1 && actState(i + 1) == 1
         thisBout = vertcat(thisBout, i);
@@ -16,6 +18,7 @@ for i = 1 : length(actState) - 1
     end
 end
 thisBout = [];
+% clear inter segments smaller than a set threshold
 for i = 1 : length(actState) - 1
     if actState(i) == 0 && actState(i + 1) == 0
         thisBout = vertcat(thisBout, i);

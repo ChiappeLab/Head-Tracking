@@ -1,5 +1,5 @@
+%% Run alignment of different videos in parallel 
 function ParallelAlignment(params)
-% Run alignment of different videos in parallel 
 poolobj = gcp('nocreate'); 
 if isempty(poolobj)
     parpool(params.NProcessors)
